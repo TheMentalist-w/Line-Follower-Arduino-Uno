@@ -1,59 +1,130 @@
-// IR Sensor
-#define IRsensor1 A0      //left
-#define IRsensor2 A1      //middle
-#define IRsensor3 A2      //right
+#include <AFMotor.h>
+#include "constants.h"
 
 // Initial Values of Sensors
-int sensors[3] = {0, 0, 0};
+bool IRSensorLeft = false;
+bool IRSensorCenter = false;
+bool IRSensorRight = false;
+bool USsensor = 0;
+bool SoundSensor = 0;
 
-int error = 0;
+// Output Devices Declaration
+AF_DCMotor stroboscope(StroboscopePort);
+AF_DCMotor speaker(SpeakerPort);
+AF_DCMotor motorLeft(MotorLeftPort);
+AF_DCMotor motorRight(MotorRightPort);
 
-void setup(){
-  pinMode(IRsensor1, INPUT);
-  pinMode(IRsensor2, INPUT);
-  pinMode(IRsensor3, INPUT);
-  
-  Serial.begin(9600);                     //setting serial monitor at a default baund rate of 9600
-  delay(500);
-  Serial.println("Started !!");
+int measureDistance()
+{
+  digitalWrite(USTrig, HIGH);
+  delayMicroseconds(AwaitTime);
+  digitalWrite(USTrig, LOW);
+  return pulseIn(USEcho, HIGH) / 58.00;
+}
+
+void goForward()
+{
+  motorLeft.setSpeed(MotorSpeed);
+  motorRight.setSpeed(MotorSpeed);
+  motorLeft.run(FORWARD);
+  motorRight.run(FORWARD);
+}
+
+void goLeft()
+{
+  motorLeft.setSpeed(0);
+  motorRight.setSpeed(MotorSpeed);
+  motorLeft.run(RELEASE);
+  motorRight.run(FORWARD);
+}
+
+void goRight()
+{
+  motorLeft.setSpeed(MotorSpeed);
+  motorRight.setSpeed(0);
+  motorLeft.run(FORWARD);
+  motorRight.run(RELEASE);
+}
+
+void goBack()
+{
+  motorLeft.setSpeed(MotorSpeed);
+  motorRight.setSpeed(255);
+  motorLeft.run(BACKWARD);
+  motorRight.run(BACKWARD);
+}
+
+void playSound()
+{
+  speaker.run(FORWARD);
+}
+
+void muteSound()
+{
+  speaker.run(RELEASE);
+}
+
+void startFlashing()
+{
+  stroboscope.run(FORWARD);
+}
+
+void stopFlashing()
+{
+  stroboscope.run(RELEASE);
+}
+
+void readSensors()
+{
+  IRSensorLeft = digitalRead(IRSensorLeftPort) > IRTreshold;
+  IRSensorCenter = digitalRead(IRSensorCenterPort) > IRTreshold;
+  IRSensorRight = digitalRead(IRSensorRightPort) > IRTreshold;
+  USsensor = measureDistance() > USTreshold;
+  SoundSensor = digitalRead(SoundSensorPort) > SoundTreshold;
+}
+
+void chooseRoute()
+{
+  if (USsensor)
+    if (IRSensorCenter)
+      goForward();
+    else if (IRSensorLeft && !IRSensorRight)
+      goLeft();
+    else if (!IRSensorLeft && IRSensorRight)
+      goRight();
+    else
+      goBack();
+  else
+    playSound();
+}
+
+void setup()
+{
+  // IR sensors
+  pinMode(IRSensorLeftPort, INPUT);
+  pinMode(IRSensorCenterPort, INPUT);
+  pinMode(IRSensorRightPort, INPUT);
+
+  // Ultrasonic sensor
+  pinMode(USTrig, OUTPUT);
+  pinMode(USEcho, INPUT);
+
+  // Sound sensor
+  pinMode(SoundSensorPort, INPUT);
+
+  // Output config
+  speaker.setSpeed(SpeakerSpeed);
+  stroboscope.setSpeed(StroboscopeSpeed);
+
+  // Serial setup
+  Serial.begin(9600); //setting serial monitor at a default baund rate of 9600
+  Serial.println("Let's follow that line!!!");
   delay(1000);
 }
 
-// Reading values of IRsensors
-void readSensors(){
-  sensors[0] = digitalRead(IRsensor1);
-  sensors[1] = digitalRead(IRsensor2);
-  sensors[2] = digitalRead(IRsensor3);
-}
-
-// Checking the right route
-void chooseRoute(){
-  if(sensors[0] == 0 and sensors[1] == 0 and sensors[2] == 0){      //no line detected - stop condition
-    error = 10;
-  }
-  else if(sensors[0] == 1 and sensors[1] == 0 and sensors[2] == 0){   //turn left
-    error = -2;
-  }
-  else if((sensors[0] == 0 and sensors[1] == 1 and sensors[2] == 0) or (sensors[0] == 1 and sensors[1] == 1 and sensors[2] == 1)){   //go forward
-    error = 0;
-  }
-  else if(sensors[0] == 0 and sensors[1] == 0 and sensors[2] == 1){   //turn right
-    error = 2;
-  }
-  else if(sensors[0] == 1 and sensors[1] == 1 and sensors[2] == 0){   //slight turn left
-    error = -1;
-  }
-  else if(sensors[0] == 0 and sensors[1] == 1 and sensors[2] == 1){   //slight turn right
-    error = 1;
-  }
-}
-
-void loop(){
+void loop()
+{
   readSensors();
   chooseRoute();
-
-  Serial.println(error);
-  
   delay(1000);
-
 }

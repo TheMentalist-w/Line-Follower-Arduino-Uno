@@ -1,31 +1,32 @@
 #include <AFMotor.h>
+#include "constants.h"
 
-AF_DCMotor motor1(3);
-AF_DCMotor motor2(4);
+AF_DCMotor motorLeft(MotorLeftPort);
+AF_DCMotor motorRight(MotorRightPort);
 
-void setup() 
+void setup()
 {
   //Set initial speed of the motor & stop
-  motor1.setSpeed(200);
-  motor1.run(RELEASE);
+  motorLeft.setSpeed(200);
+  motorLeft.run(RELEASE);
 
-  motor2.setSpeed(200);
-  motor2.run(RELEASE);
+  motorRight.setSpeed(200);
+  motorRight.run(RELEASE);
 }
 
-void loop() 
+void loop()
 {
   uint8_t i;
 
   // Turn on motor
-  motor1.run(FORWARD);
-  motor2.run(FORWARD);
-  
+  motorLeft.run(FORWARD);
+  motorRight.run(FORWARD);
+
   // Accelerate from zero to maximum speed
-  for (i=0; i<255; i++) 
+  for (i = 0; i < MotorSpeed; i++)
   {
-    motor1.setSpeed(i);
-    motor2.setSpeed(i);  
+    motorLeft.setSpeed(i);
+    motorRight.setSpeed(i);
     delay(10);
   }
 
