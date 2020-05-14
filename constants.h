@@ -11,7 +11,7 @@
 #define USTreshold 50
 
 // Sound sensor
-#define SoundSensorPort 6
+#define SoundSensorPort A5
 #define SoundTreshold 0.5
 
 // Output ports
