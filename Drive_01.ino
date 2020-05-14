@@ -54,48 +54,37 @@ void goBack()
   motorRight.run(BACKWARD);
 }
 
-void playSound()
+void checkSound()
 {
-  speaker.run(FORWARD);
-}
-
-void muteSound()
-{
-  speaker.run(RELEASE);
-}
-
-void startFlashing()
-{
-  stroboscope.run(FORWARD);
-}
-
-void stopFlashing()
-{
-  stroboscope.run(RELEASE);
+  SoundSensor = digitalRead(SoundSensorPort);
+  if (SoundSensor)
+  {
+    speaker.run(FORWARD);
+    stroboscope.run(FORWARD);
+    delay(5000);
+    speaker.run(RELEASE);
+    stroboscope.run(RELEASE);
+  }
 }
 
 void readSensors()
 {
-  IRSensorLeft = digitalRead(IRSensorLeftPort) > IRTreshold;
-  IRSensorCenter = digitalRead(IRSensorCenterPort) > IRTreshold;
-  IRSensorRight = digitalRead(IRSensorRightPort) > IRTreshold;
+  IRSensorLeft = digitalRead(IRSensorLeftPort);
+  IRSensorCenter = digitalRead(IRSensorCenterPort);
+  IRSensorRight = digitalRead(IRSensorRightPort);
   USsensor = measureDistance() > USTreshold;
-  SoundSensor = digitalRead(SoundSensorPort) > SoundTreshold;
 }
 
 void chooseRoute()
 {
-  if (USsensor)
-    if (IRSensorCenter)
-      goForward();
-    else if (IRSensorLeft && !IRSensorRight)
-      goLeft();
-    else if (!IRSensorLeft && IRSensorRight)
-      goRight();
-    else
-      goBack();
+  if (IRSensorLeft && !IRSensorRight)
+    goLeft();
+  else if (!IRSensorLeft && IRSensorRight)
+    goRight();
+  else if (IRSensorCenter)
+    goForward();
   else
-    playSound();
+    checkSound();
 }
 
 void setup()
@@ -126,5 +115,4 @@ void loop()
 {
   readSensors();
   chooseRoute();
-  delay(1000);
 }
