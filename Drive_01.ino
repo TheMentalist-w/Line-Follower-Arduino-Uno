@@ -2,9 +2,9 @@
 #include "constants.h"
 
 // Initial Values of Sensors
-bool IRSensorLeft = false;
-bool IRSensorCenter = false;
-bool IRSensorRight = false;
+int IRSensorLeft = 0;
+int IRSensorCenter = 0;
+int IRSensorRight = 0;
 bool USsensor = 0;
 bool SoundSensor = 0;
 
@@ -72,19 +72,16 @@ void readSensors()
   IRSensorLeft = digitalRead(IRSensorLeftPort);
   IRSensorCenter = digitalRead(IRSensorCenterPort);
   IRSensorRight = digitalRead(IRSensorRightPort);
-  USsensor = measureDistance() > USTreshold;
 }
 
 void chooseRoute()
 {
-  if (IRSensorLeft && !IRSensorRight)
+  if (IRSensorCenter)
+    goForward();
+  else if (IRSensorLeft && !IRSensorRight)
     goLeft();
   else if (!IRSensorLeft && IRSensorRight)
     goRight();
-  else if (IRSensorCenter)
-    goForward();
-  else
-    checkSound();
 }
 
 void setup()
