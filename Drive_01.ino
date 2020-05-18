@@ -54,6 +54,14 @@ void goBack()
   motorRight.run(BACKWARD);
 }
 
+void stop()
+{
+  motorLeft.setSpeed(0);
+  motorRight.setSpeed(0);
+  motorLeft.run(RELEASE);
+  motorRight.run(RELEASE);
+}
+
 void checkSound()
 {
   SoundSensor = digitalRead(SoundSensorPort);
@@ -61,7 +69,9 @@ void checkSound()
   {
     speaker.run(FORWARD);
     stroboscope.run(FORWARD);
-    delay(5000);
+  }
+  else
+  {
     speaker.run(RELEASE);
     stroboscope.run(RELEASE);
   }
@@ -82,6 +92,9 @@ void chooseRoute()
     goLeft();
   else if (!IRSensorLeft && IRSensorRight)
     goRight();
+  else:
+    stop();
+  // goBack();
 }
 
 void setup()
@@ -112,4 +125,5 @@ void loop()
 {
   readSensors();
   chooseRoute();
+  checkSound();
 }
