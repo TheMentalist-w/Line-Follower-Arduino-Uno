@@ -22,3 +22,6 @@
 #define MotorSpeed 255
 #define MotorLeftPort 3
 #define MotorRightPort 4
+
+// Motors constant
+#define StopTimeTreshold 255

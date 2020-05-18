@@ -5,6 +5,7 @@
 int IRSensorLeft = 0;
 int IRSensorCenter = 0;
 int IRSensorRight = 0;
+unsigned int stopTime = 0;
 bool USsensor = 0;
 bool SoundSensor = 0;
 
@@ -24,6 +25,7 @@ int measureDistance()
 
 void goForward()
 {
+  stopTime = 0;
   motorLeft.setSpeed(MotorSpeed);
   motorRight.setSpeed(MotorSpeed);
   motorLeft.run(FORWARD);
@@ -32,6 +34,7 @@ void goForward()
 
 void goLeft()
 {
+  stopTime = 0;
   motorLeft.setSpeed(0);
   motorRight.setSpeed(MotorSpeed);
   motorLeft.run(RELEASE);
@@ -40,6 +43,7 @@ void goLeft()
 
 void goRight()
 {
+  stopTime = 0;
   motorLeft.setSpeed(MotorSpeed);
   motorRight.setSpeed(0);
   motorLeft.run(FORWARD);
@@ -48,6 +52,7 @@ void goRight()
 
 void goBack()
 {
+  stopTime = 0;
   motorLeft.setSpeed(MotorSpeed);
   motorRight.setSpeed(255);
   motorLeft.run(BACKWARD);
@@ -56,24 +61,26 @@ void goBack()
 
 void stop()
 {
-  motorLeft.setSpeed(0);
-  motorRight.setSpeed(0);
-  motorLeft.run(RELEASE);
-  motorRight.run(RELEASE);
+  stopTime++;
+  if (stopTime > StopTimeTreshold)
+  {
+    motorLeft.setSpeed(0);
+    motorRight.setSpeed(0);
+    motorLeft.run(RELEASE);
+    motorRight.run(RELEASE);
+  }
 }
 
 void checkSound()
 {
+  speaker.run(RELEASE);
+  stroboscope.run(RELEASE);
+
   SoundSensor = digitalRead(SoundSensorPort);
   if (SoundSensor)
   {
     speaker.run(FORWARD);
     stroboscope.run(FORWARD);
-  }
-  else
-  {
-    speaker.run(RELEASE);
-    stroboscope.run(RELEASE);
   }
 }
 
