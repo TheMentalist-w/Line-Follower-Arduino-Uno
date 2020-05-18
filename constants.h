@@ -24,4 +24,4 @@
 #define MotorRightPort 4
 
 // Motors constant
-#define StopTimeTreshold 255
+#define StopTimeTreshold 4096

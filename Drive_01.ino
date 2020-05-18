@@ -5,7 +5,7 @@
 int IRSensorLeft = 0;
 int IRSensorCenter = 0;
 int IRSensorRight = 0;
-unsigned int stopTime = 0;
+unsigned long stopTime = 0;
 bool USsensor = 0;
 bool SoundSensor = 0;
 
@@ -54,21 +54,23 @@ void goBack()
 {
   stopTime = 0;
   motorLeft.setSpeed(MotorSpeed);
-  motorRight.setSpeed(255);
+  motorRight.setSpeed(MotorSpeed);
   motorLeft.run(BACKWARD);
   motorRight.run(BACKWARD);
 }
 
 void stop()
 {
-  stopTime++;
   if (stopTime > StopTimeTreshold)
   {
     motorLeft.setSpeed(0);
     motorRight.setSpeed(0);
     motorLeft.run(RELEASE);
     motorRight.run(RELEASE);
+    checkSound();
   }
+  else
+    stopTime++;
 }
 
 void checkSound()
@@ -132,5 +134,4 @@ void loop()
 {
   readSensors();
   chooseRoute();
-  checkSound();
 }
