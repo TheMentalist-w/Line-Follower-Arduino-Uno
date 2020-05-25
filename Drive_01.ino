@@ -1,3 +1,5 @@
+//dziala, mozna optymalizowac dzialanie
+
 #include <AFMotor.h>
 #include "constants.h"
 
@@ -6,22 +8,14 @@ int IRSensorLeft = 0;
 int IRSensorCenter = 0;
 int IRSensorRight = 0;
 unsigned long stopTime = 0;
-bool USsensor = 0;
 bool SoundSensor = 0;
+int play = 0;
 
 // Output Devices Declaration
 AF_DCMotor stroboscope(StroboscopePort);
 AF_DCMotor speaker(SpeakerPort);
 AF_DCMotor motorLeft(MotorLeftPort);
 AF_DCMotor motorRight(MotorRightPort);
-
-int measureDistance()
-{
-  digitalWrite(USTrig, HIGH);
-  delayMicroseconds(AwaitTime);
-  digitalWrite(USTrig, LOW);
-  return pulseIn(USEcho, HIGH) / 58.00;
-}
 
 void goForward()
 {
@@ -61,8 +55,10 @@ void goBack()
 
 void stop()
 {
+  Serial.println(stopTime);
   if (stopTime > StopTimeTreshold)
   {
+    Serial.println("STOP");
     motorLeft.setSpeed(0);
     motorRight.setSpeed(0);
     motorLeft.run(RELEASE);
@@ -75,14 +71,18 @@ void stop()
 
 void checkSound()
 {
-  speaker.run(RELEASE);
-  stroboscope.run(RELEASE);
-
   SoundSensor = digitalRead(SoundSensorPort);
-  if (SoundSensor)
+  if (SoundSensor and !play)
   {
     speaker.run(FORWARD);
     stroboscope.run(FORWARD);
+    play = 1;
+  }
+  else if (SoundSensor and play)
+  {
+      speaker.run(RELEASE);
+      stroboscope.run(RELEASE);
+      play = 0;
   }
 }
 
@@ -101,7 +101,7 @@ void chooseRoute()
     goLeft();
   else if (!IRSensorLeft && IRSensorRight)
     goRight();
-  else:
+  else
     stop();
   // goBack();
 }
@@ -112,10 +112,6 @@ void setup()
   pinMode(IRSensorLeftPort, INPUT);
   pinMode(IRSensorCenterPort, INPUT);
   pinMode(IRSensorRightPort, INPUT);
-
-  // Ultrasonic sensor
-  pinMode(USTrig, OUTPUT);
-  pinMode(USEcho, INPUT);
 
   // Sound sensor
   pinMode(SoundSensorPort, INPUT);
@@ -134,4 +130,5 @@ void loop()
 {
   readSensors();
   chooseRoute();
+  checkSound();
 }
