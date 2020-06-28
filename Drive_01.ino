@@ -8,7 +8,7 @@ int IRSensorLeft = 0;
 int IRSensorCenter = 0;
 int IRSensorRight = 0;
 unsigned long stopTime = 0;
-bool SoundSensor = 0;
+int SoundSensor = 0;
 int play = 0;
 
 // Output Devices Declaration
@@ -103,7 +103,6 @@ void chooseRoute()
     goRight();
   else
     stop();
-  // goBack();
 }
 
 void setup()
