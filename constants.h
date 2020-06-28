@@ -2,11 +2,9 @@
 #define IRSensorLeftPort A0
 #define IRSensorCenterPort A1
 #define IRSensorRightPort A2
-#define IRTreshold 0.5
 
 // Sound sensor
 #define SoundSensorPort A5
-#define SoundTreshold 0.5
 
 // Output ports
 #define StroboscopePort 1
